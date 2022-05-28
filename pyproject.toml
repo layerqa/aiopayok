@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "aiopayok"
+version = "0.1.2"
+description = "payok.io asynchronous python wrapper"
+authors = ["layerqa"]
+license = "GNU v3"
+readme = "README.md"
+repository = "https://github.com/layerqa/aiopayok"
+documentation = "https://payok.io/cabinet/documentation/doc_main.php"
+keywords = [
+    "payok",
+    "aiopayok",
+    "payok api",
+]
+
+
+[tool.poetry.dependencies]
+python = "^3.8"
+aiohttp = "^3.8.1"
+certifi = "^2022.5.18"
+pydantic = "^1.9.1"
+
+[tool.poetry.dev-dependencies]
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
