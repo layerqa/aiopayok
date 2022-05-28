@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "aiopayok"
-version = "0.1.5"
+version = "0.1.6"
 description = "payok.io asynchronous python wrapper"
 authors = ["layerqa"]
 license = "GPL-3.0-only"
