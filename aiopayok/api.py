@@ -1,11 +1,11 @@
+from hashlib import md5
+from typing import Optional, Union, List
+from urllib.parse import urlencode
+
 from .base import BaseClient
 from .const import HTTPMethods
-import hashlib
 from .models.balance import Balance
-from .models.transaction import Transaction, Transactions
-
-from typing import Optional, Union
-
+from .models.transaction import Transaction
 
 class Payok(BaseClient):
     '''
@@ -34,7 +34,7 @@ class Payok(BaseClient):
         super().__init__()
         self.__api_id = api_id
         self.__api_key = api_key
-        self._secret_key = secret_key
+        self.__secret_key = secret_key
         self._shop = shop
 
     async def get_balance(self) -> Balance:
@@ -52,10 +52,9 @@ class Payok(BaseClient):
 
     async def get_transactions(
         self,
-        shop: Optional[int] = None,
         payment: Optional[Union[int, str]] = None,
         offset: Optional[int] = None
-    ) -> Union[Transaction, Transactions]:
+    ) -> Union[Transaction, List[Transaction]]:
         '''
         Get transactions
 
@@ -70,7 +69,7 @@ class Payok(BaseClient):
         data = {
             'API_ID': self.__api_id,
             'API_KEY': self.__api_key,
-            'shop': shop or self._shop
+            'shop': self._shop
         }
         if payment:
             data['payment'] = payment
@@ -79,23 +78,19 @@ class Payok(BaseClient):
 
         response = await self._make_request(method, url, data=data)
 
-        if response.pop("status") == "error":
-            raise Exception(response)
-
         if payment:
             return Transaction(**response['1'])
 
         transactions = []
         for i in list(response.keys())[1:]:
             transactions.append(Transaction(**response[i]))
-
-        return Transactions(**transactions)
+        return transactions
 
     async def create_pay(
         self,
-        payment: str,
         amount: float,
-        currency: Optional[str] = "RUB",
+        payment: str,
+        currency: Optional[str] = 'RUB',
         desc: Optional[str] = None,
         email: Optional[str] = None,
         success_url: Optional[str] = None,
@@ -118,21 +113,28 @@ class Payok(BaseClient):
 
             Docs: https://payok.io/cabinet/documentation/doc_payform.php
         '''
+        if not self.__secret_key:
+            raise Exception('Secret key is empty')
+        
         method = HTTPMethods.GET
-        url = f"{self.API_HOST}/pay?amount={amount}&payment={payment}&shop={self._shop}&desc={desc}&email={email}&success_url=&method={method}&lang={lang}&custom={custom}"
-        if not self._secret_key:
-            raise Exception("secret key is empty")
-        data = [
-            amount,
-            payment,
-            self._shop,
-            currency,
-            desc,
-            self._secret_key,
-        ]
-        params = "|".join(map(str, data))
-        sign = hashlib.md5(params.encode("utf-8")).hexdigest()
-        r = await self._make_request("GET", url := f"{url}&sign={sign}")
-        if "pay_error_text" in r:
-            raise Exception("Invalid payform sign")
+        params = {
+            'amount': amount,
+            'payment': payment,
+            'shop': self._shop,
+            'currency': currency,
+            'desc': desc,
+            'email': email,
+            'success_url': success_url,
+            'method': method,
+            'lang': lang,
+            'custom': custom
+        }
+
+        sign_params = '|'.join(map(
+            str, [amount, payment, self._shop, currency, desc, self.__secret_key]
+        )).encode('utf-8')
+        sign = md5(sign_params).hexdigest()
+        params['sign'] = sign
+
+        url = f'{self.API_HOST}/pay?' + urlencode(params)
         return url

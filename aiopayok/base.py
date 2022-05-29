@@ -1,6 +1,5 @@
-import asyncio
 import ssl
-import json
+import asyncio
 
 import certifi
 from aiohttp import ClientSession, TCPConnector
@@ -47,8 +46,6 @@ class BaseClient:
         session = self.get_session()
 
         async with session.request(method, url, **kwargs) as response:
-            if method == HTTPMethods.GET:
-                return await response.text()
             return await response.json(content_type="text/plain")
 
     def __del__(self):
