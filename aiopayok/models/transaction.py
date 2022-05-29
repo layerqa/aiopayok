@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from typing import List
+from typing import List, Union
 
 
 class Transaction(BaseModel):
@@ -15,7 +15,7 @@ class Transaction(BaseModel):
     comission_fixed: float
     amount_profit: float
     method: str
-    payment_id: int
+    payment_id: Union[int, str]
     description: str
     date: str
     pay_date: str
@@ -23,6 +23,7 @@ class Transaction(BaseModel):
     custom_fields: str
     webhook_status: int
     webhook_amount: int
+
 
 class Transactions(BaseModel):
     '''Payok API transactions model'''

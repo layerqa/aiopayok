@@ -1,10 +1,11 @@
+import asyncio
 import ssl
 import json
 
 import certifi
 from aiohttp import ClientSession, TCPConnector
 from aiohttp.typedefs import StrOrURL
-
+from .const import HTTPMethods
 
 from typing import Optional
 
@@ -20,8 +21,9 @@ class BaseClient:
             It will be created on a first API request.
             The second request will use the same `self._session`.
         '''
+        self._loop = asyncio.get_event_loop() 
         self._session: Optional[ClientSession] = None
-    
+
     def get_session(self):
         '''Get cached session. One session per instance.'''
         if isinstance(self._session, ClientSession) and not self._session.closed:
@@ -32,7 +34,7 @@ class BaseClient:
 
         self._session = ClientSession(connector=connector)
         return self._session
-    
+
     async def _make_request(self, method: str, url: StrOrURL, **kwargs) -> dict:
         '''
         Make a request.
@@ -45,7 +47,10 @@ class BaseClient:
         session = self.get_session()
 
         async with session.request(method, url, **kwargs) as response:
-            data = await response.text()
-            return json.loads(data)
-        
+            if method == HTTPMethods.GET:
+                return await response.text()
+            return await response.json(content_type="text/plain")
 
+    def __del__(self):
+        if self._session:
+            self._loop.run_until_complete(self._session.close())
