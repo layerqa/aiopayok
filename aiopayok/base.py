@@ -1,13 +1,13 @@
 import asyncio
 import ssl
-import json
+from typing import Optional
 
 import certifi
 from aiohttp import ClientSession, TCPConnector
 from aiohttp.typedefs import StrOrURL
-from .const import HTTPMethods
 
-from typing import Optional
+from .const import HTTPMethods
+from .exceptions import PayokAPIError
 
 
 class BaseClient:
@@ -47,9 +47,14 @@ class BaseClient:
         session = self.get_session()
 
         async with session.request(method, url, **kwargs) as response:
-            if method == HTTPMethods.GET:
-                return await response.text()
-            return await response.json(content_type="text/plain")
+            response = await response.json(content_type="text/plain")
+        return await self._validate_response(response)
+
+    async def _validate_response(self, response: dict) -> dict:
+        if response.get("status") and response.pop("status") == "error":
+            code, desc = response["error_code"], response["error_text"]
+            raise PayokAPIError(code, desc)
+        return response
 
     def __del__(self):
         if self._session:

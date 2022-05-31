@@ -1,6 +1,6 @@
-from pydantic import BaseModel
+from typing import Union
 
-from typing import List, Union
+from pydantic import BaseModel
 
 
 class Transaction(BaseModel):
@@ -23,9 +23,3 @@ class Transaction(BaseModel):
     custom_fields: str
     webhook_status: int
     webhook_amount: int
-
-
-class Transactions(BaseModel):
-    '''Payok API transactions model'''
-
-    transactions: List[Transaction]
