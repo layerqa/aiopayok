@@ -1,8 +1,9 @@
 import asyncio
 import ssl
+import certifi
+
 from typing import Optional
 
-import certifi
 from aiohttp import ClientSession, TCPConnector
 from aiohttp.typedefs import StrOrURL
 
@@ -55,6 +56,7 @@ class BaseClient:
             raise PayokAPIError(code, desc)
 
         return response
+
 
     def __del__(self):
         if self._session:
