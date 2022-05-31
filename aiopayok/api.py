@@ -1,5 +1,5 @@
 from hashlib import md5
-from typing import List, Optional, Union
+from typing import Optional, Union, List
 from urllib.parse import urlencode
 
 from .base import BaseClient
