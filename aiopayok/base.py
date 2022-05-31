@@ -6,7 +6,6 @@ import certifi
 from aiohttp import ClientSession, TCPConnector
 from aiohttp.typedefs import StrOrURL
 
-from .const import HTTPMethods
 from .exceptions import PayokAPIError
 
 
@@ -54,6 +53,7 @@ class BaseClient:
         if response.get("status") and response.pop("status") == "error":
             code, desc = response["error_code"], response["error_text"]
             raise PayokAPIError(code, desc)
+
         return response
 
     def __del__(self):
