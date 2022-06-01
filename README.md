@@ -3,7 +3,7 @@
 [![PyPI](https://img.shields.io/pypi/v/aiopayok?style=for-the-badge)](https://pypi.org/project/aiopayok/)
 ## AIOPayok
 
-> payok.io asynchronous python wrapper
+>payok.io asynchronous python wrapper
 
 ``` python
 import asyncio

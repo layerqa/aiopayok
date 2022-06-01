@@ -7,10 +7,10 @@ from .const import HTTPMethods
 from .models.balance import Balance
 from .models.transaction import Transaction
 
+
 class Payok(BaseClient):
     '''
     Payok API client.
-
         Consists of API methods only.
         All other methods are hidden in the BaseClient.
     '''
@@ -27,7 +27,6 @@ class Payok(BaseClient):
     ) -> None:
         '''
         Init Payok API client
-
             :param api_id: Your API Key ID
             :param api_key: Your API Key
         '''
@@ -40,7 +39,6 @@ class Payok(BaseClient):
     async def get_balance(self) -> Balance:
         '''
         Get balance and ref balance
-
             Docs: https://payok.io/cabinet/documentation/doc_api_balance
         '''
         method = HTTPMethods.POST
@@ -48,6 +46,7 @@ class Payok(BaseClient):
         data = {'API_ID': self.__api_id, 'API_KEY': self.__api_key}
 
         response = await self._make_request(method, url, data=data)
+
         return Balance(**response)
 
     async def get_transactions(
@@ -57,11 +56,8 @@ class Payok(BaseClient):
     ) -> Union[Transaction, List[Transaction]]:
         '''
         Get transactions
-
-            :param shop: Store ID
             :param payment: Payment ID
             :param offset: Indent, skip the specified number of lines
-
             Docs: https://payok.io/cabinet/documentation/doc_api_transaction
         '''
         method = HTTPMethods.POST
@@ -82,14 +78,15 @@ class Payok(BaseClient):
             return Transaction(**response['1'])
 
         transactions = []
-        for i in list(response.keys())[1:]:
-            transactions.append(Transaction(**response[i]))
+        for transaction in response.values():
+            transactions.append(Transaction(**transaction))
+
         return transactions
 
     async def create_pay(
         self,
         amount: float,
-        payment: str,
+        payment: Union[int, str],
         currency: Optional[str] = 'RUB',
         desc: Optional[str] = None,
         email: Optional[str] = None,
@@ -100,7 +97,6 @@ class Payok(BaseClient):
     ) -> str:
         '''
         Create payform url
-
             :param payment: Order number, unique in your system, up to 16 characters. (a-z0-9-_)
             :param amount : Order amount.
             :param currency : ISO 4217 currency. Default is "RUB".
@@ -110,13 +106,11 @@ class Payok(BaseClient):
             :param method: Payment method
             :param lang: Interface language. RU or EN
             :param custom: Parameter that you want to pass in the notification.
-
             Docs: https://payok.io/cabinet/documentation/doc_payform.php
         '''
         if not self.__secret_key:
             raise Exception('Secret key is empty')
-        
-        method = HTTPMethods.GET
+
         params = {
             'amount': amount,
             'payment': payment,
@@ -131,7 +125,8 @@ class Payok(BaseClient):
         }
 
         sign_params = '|'.join(map(
-            str, [amount, payment, self._shop, currency, desc, self.__secret_key]
+            str,
+            [amount, payment, self._shop, currency, desc, self.__secret_key]
         )).encode('utf-8')
         sign = md5(sign_params).hexdigest()
         params['sign'] = sign
