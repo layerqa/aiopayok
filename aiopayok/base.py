@@ -52,7 +52,7 @@ class BaseClient:
 
     async def _validate_response(self, response: dict) -> dict:
         if response.get("status") and response.pop("status") == "error":
-            code, desc = response["error_code"], response["error_text"]
+            code, desc = response["error_code"], response["text"]
             raise PayokAPIError(code, desc)
 
         return response
