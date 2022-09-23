@@ -88,7 +88,7 @@ class Payok(BaseClient):
         amount: float,
         payment: Union[int, str],
         currency: Optional[str] = 'RUB',
-        desc: Optional[str] = None,
+        desc: Optional[str] = 'Description',
         email: Optional[str] = None,
         success_url: Optional[str] = None,
         method: Optional[str] = None,
@@ -123,6 +123,10 @@ class Payok(BaseClient):
             'lang': lang,
             'custom': custom
         }
+
+        for key, value in params.copy().items():
+            if value is None:
+                del params[key]
 
         sign_params = '|'.join(map(
             str,
