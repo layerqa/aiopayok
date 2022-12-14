@@ -6,3 +6,11 @@ class HTTPMethods(str, Enum):
 
     POST = 'POST'
     GET = 'GET'
+
+
+class Currencies(str, Enum):
+    RUB = 'RUB'
+    UAH = 'UAH'
+    USD = 'USD'
+    EUR = 'EUR'
+    RUB2 = 'RUB2'
