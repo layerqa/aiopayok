@@ -3,7 +3,7 @@ from typing import Optional, Union, List
 from urllib.parse import urlencode
 
 from .base import BaseClient
-from .const import HTTPMethods
+from .const import HTTPMethods, Currencies
 from .models.balance import Balance
 from .models.transaction import Transaction
 
@@ -87,7 +87,7 @@ class Payok(BaseClient):
         self,
         amount: float,
         payment: Union[int, str],
-        currency: Optional[str] = 'RUB',
+        currency: Optional[str] = Currencies.RUB,
         desc: Optional[str] = 'Description',
         email: Optional[str] = None,
         success_url: Optional[str] = None,
