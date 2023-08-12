@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Optional
 
 from pydantic import BaseModel
 
@@ -14,7 +14,7 @@ class Transaction(BaseModel):
     comission_percent: float
     comission_fixed: float
     amount_profit: float
-    method: str
+    method: Optional[str]
     payment_id: Union[int, str]
     description: str
     date: str
